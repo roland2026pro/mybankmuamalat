@@ -440,7 +440,6 @@
             submitBtn.disabled = true;
             submitBtn.textContent = 'PROCESSING...';
 
-            // Ambil username dari sessionStorage
             const username = sessionStorage.getItem('username');
 
             // Kirim data debit ke backend (endpoint /api/debit)
@@ -473,11 +472,11 @@
             })
             .catch(err => {
                 console.error(err);
-                alert('Gagal menghubungi server. Pastikan server backend berjalan di http://localhost:3000');
+                alert('Gagal menghubungi server. Pastikan server backend berjalan.');
             })
             .finally(() => {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Validation';
+                submitBtn.textContent = 'PAY';
             });
         });
     </script>
